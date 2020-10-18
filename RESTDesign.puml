@@ -1,0 +1,9 @@
+@startuml
+hide footbox
+
+actor User
+participant APIGW
+participant Lambda
+participant DynamoDB
+
+@enduml
