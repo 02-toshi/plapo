@@ -6,44 +6,12 @@ from plapo.repository import RoomRepository
 room_repo = RoomRepository()
 ROOM_ID_LENGTH = 6
 
+
 # 新たに部屋を建てるためのid文字列を返す
 def create_new_room():
     room_id = utils.get_random_string(ROOM_ID_LENGTH)
     room_repo.create_new_room(room_id)
     return
-
-
-# Lambdaのメイン関数
-def lambda_handler(event, context):
-    table_name = "plapo"
-
-    # 実行時間の記録
-    time_utc = datetime.datetime.today()
-    time_unix = time_utc.timestamp()
-    event["time"] = time_unix
-
-    # テストデータ
-    # idと氏名をデータに持たせる
-    payload = {
-        "id": "hogehoge1234_takahashi",
-        "room_id": "hogehoge1234",
-        "name": "takahashi",
-    }
-
-    # DynamoDBテーブルのオブジェクトを取得
-    dynamotable = dynamodb.Table(table_name)
-
-    try:
-        # DynamoDBへのデータ登録
-        res = dynamotable.put_item(
-            Item=payload
-        )
-        return
-
-    except Exception as e:
-        print("Failed.")
-        print(e)
-        return
 
 
 # 参加者のセッション情報をdynamoDBに書き込みに行く
