@@ -4,11 +4,11 @@ from plapo import utils
 from plapo.repository import RoomRepository
 
 room_repo = RoomRepository()
-
+ROOM_ID_LENGTH = 6
 
 # 新たに部屋を建てるためのid文字列を返す
 def create_new_room():
-    room_id = utils.get_random_string(16)
+    room_id = utils.get_random_string(ROOM_ID_LENGTH)
     room_repo.create_new_room(room_id)
     return
 
