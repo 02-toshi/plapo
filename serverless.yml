@@ -1,0 +1,44 @@
+service: plapo
+frameworkVersion: '2'
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  hello:
+    handler: handler.hello
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-python-requirements
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+    seed:
+      development:
+        sources:
+          - table: plapo
+            sources: [./migrations/plapo.json]
+
+resources:
+  Resources:
+    Tables:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: plapo
+        AttributeDefinitions:
+          - AttributeName: room_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: room_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
