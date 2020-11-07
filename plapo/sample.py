@@ -1,3 +1,4 @@
+"""boto3の参考にするためだけのただのサンプル。あとで消そう"""
 import boto3
 
 dynamoDB = boto3.resource('dynamodb')
