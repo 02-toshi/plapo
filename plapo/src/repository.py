@@ -1,12 +1,13 @@
 import boto3
 
 dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
-table_name = "plapo"
+room_table_name = "room"
+member_table_name = "member"
 
 
 class RoomRepository:
     def __init__(self):
-        self.table = dynamodb.Table(table_name)
+        self.table = dynamodb.Table(room_table_name)
 
     def query_room(self, room_id: str):
         """
@@ -39,22 +40,46 @@ class RoomRepository:
         """
         self.create_new_room(room_id)
 
-    def vote(self, room_id: str, name: str, point: int):
+
+class MemberRepository:
+    """参加者のリポジトリ"""
+
+    def __init__(self):
+        self.table = dynamodb.Table(member_table_name)
+
+    def create_new_member(self, member_id: str, room_id: str, nickname: str):
+        """
+        参加者を新規作成する
+        :return: セッションインスタンス
+        """
+        if len(nickname) == 0:
+            nickname = "匿名"
+
+        self.table.put_item(Item={
+            "member_id": member_id,
+            "room_id": room_id,
+            "nickname": nickname,
+            "point": 0,
+            # TODO: ttlの値をいい感じにする
+            "ttl": 0
+        })
+
+        return
+
+    def vote(self, member_id: str, point: int):
         """
         自分の見積もり結果を保存する
-        :param room_id: 部屋番号
-        :param name: 見積もりをした人の名前
+        :param member_id: 参加者のID
         :param point: 見積もりポイント
         :return:
         """
         # TODO:あとでかく！
         pass
 
-    def cancel_vote(self, room_id: str, name: str):
+    def cancel_vote(self, member_id: str):
         """
         一度保存した見積もり結果を取り消す
-        :param room_id: 部屋番号
-        :param name: 見積もりを取り消す人の名前
+        :param member_id: 参加者のID
         :return: none
         """
         # TODO:あとでかく！
