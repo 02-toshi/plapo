@@ -40,11 +40,28 @@ resources:
       Properties:
         TableName: plapo
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: record_id
+            AttributeType: S
+          - AttributeName: room_id
+            AttributeType: S
+          - AttributeName: member_id
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: record_id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: room_id-member_id-index
+            KeySchema:
+              - AttributeName: room_id
+                KeyType: HASH
+              - AttributeName: member_id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+

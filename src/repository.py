@@ -1,4 +1,7 @@
+from typing import Optional
+
 import boto3
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
 table_name = "plapo"
@@ -8,25 +11,34 @@ class PlapoRepository:
     def __init__(self):
         self.table = dynamodb.Table(table_name)
 
-    def query_room(self, room_id: str):
+    def query_room(self, room_id: str) -> Optional:
         """
         部屋の情報を取得する
         :param room_id:
         :return: 指定したidの部屋が存在すれば返す
         """
-        return self.table.get_item(Key={
-            "room_id": room_id
-        })
+        res = self.table.query(
+            IndexName="room_id-member_id-index",
+            KeyConditionExpression=Key('room_id').eq(room_id)
+        )
+
+        for row in res['Items']:
+            print(row)
+
+        if len(res['Items']) > 0:
+            return res['Items']
+
+        return None
 
     def create_new_room(self, record_id: str, room_id: str):
         """
         新しい部屋を作成する
-        :param record_id: id
+        :param record_id: record_id
         :param room_id: 部屋id
         :return: none
         """
         self.table.put_item(Item={
-            "id": record_id,
+            "record_id": record_id,
             "room_id": room_id,
             "opened": True,
             # TODO: ttlの値をいい感じにする

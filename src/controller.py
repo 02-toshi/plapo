@@ -22,11 +22,16 @@ def create_new_room():
     return room_id
 
 
+def query_room(room_id: str):
+    # 参加者のセッション情報をdynamoDBに書き込みに行く
+    room_repo.query_room(room_id)
+    return
+
+
 # 参加者が部屋に入室する
 def enter_room():
     # 参加者のセッション情報をdynamoDBに書き込みに行く
-    def write_session_info(name: str, dynamodb=None):
-        return
+    return
 
 
 # 各バックログの見積もりを確定してDynamoDBに書き込みに行く
