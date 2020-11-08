@@ -72,4 +72,12 @@
      - ttl : int
       - 長くても24Hくらいかな
 
+ - ローカルdynamoDB用のスクリプト
 
+var params = {
+    TableName: 'plapo',
+};
+dynamodb.scan(params, function(err, data) {
+    if (err) ppJson(err);
+    else ppJson(data);
+});
