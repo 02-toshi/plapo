@@ -5,8 +5,20 @@ provider:
   runtime: nodejs12.x
 
 functions:
-  hello:
-    handler: handler.hello
+  #  getActiveRooms:
+  #    handler: controller.get_active_rooms
+  #    events:
+  #      - http:
+  #          path: plapo
+  #          method: get
+  - CreateRoom:
+      handler: controller.create_new_room
+      events:
+        - http:
+            path: plapo/createRoom
+            method: get
+
+
 
 plugins:
   - serverless-dynamodb-local
@@ -20,12 +32,6 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
-      seed: true
-    seed:
-      development:
-        sources:
-          - table: plapo
-            sources: [./migrations/plapo.json]
 
 resources:
   Resources:
@@ -34,10 +40,10 @@ resources:
       Properties:
         TableName: plapo
         AttributeDefinitions:
-          - AttributeName: room_id
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: room_id
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

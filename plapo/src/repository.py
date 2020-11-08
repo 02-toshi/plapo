@@ -1,13 +1,12 @@
 import boto3
 
 dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
-room_table_name = "room"
-member_table_name = "member"
+table_name = "plapo"
 
 
-class RoomRepository:
+class PlapoRepository:
     def __init__(self):
-        self.table = dynamodb.Table(room_table_name)
+        self.table = dynamodb.Table(table_name)
 
     def query_room(self, room_id: str):
         """
@@ -39,13 +38,6 @@ class RoomRepository:
         :return:
         """
         self.create_new_room(room_id)
-
-
-class MemberRepository:
-    """参加者のリポジトリ"""
-
-    def __init__(self):
-        self.table = dynamodb.Table(member_table_name)
 
     def create_new_member(self, member_id: str, room_id: str, nickname: str):
         """

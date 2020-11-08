@@ -1,8 +1,8 @@
 from plapo.src import utils
 from plapo.src.model import Session
-from plapo.src.repository import RoomRepository
+from plapo.src.repository import PlapoRepository
 
-room_repo = RoomRepository()
+room_repo = PlapoRepository()
 ROOM_ID_LENGTH = 6
 SESSION_ID_LENGTH = 10
 
