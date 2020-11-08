@@ -3,6 +3,8 @@ from typing import Optional
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from src.model import Plapo
+
 dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
 table_name = "plapo"
 
@@ -11,7 +13,7 @@ class PlapoRepository:
     def __init__(self):
         self.table = dynamodb.Table(table_name)
 
-    def query_room(self, room_id: str) -> Optional:
+    def query_room(self, room_id: str) -> Optional[Plapo]:
         """
         部屋の情報を取得する
         :param room_id:
@@ -21,11 +23,11 @@ class PlapoRepository:
             IndexName="room_id-member_id-index",
             KeyConditionExpression=Key('room_id').eq(room_id)
         )
-
-        for row in res['Items']:
-            print(row)
+        print(room_id)
+        print(res)
 
         if len(res['Items']) > 0:
+            print("取得結果" + res['Items'])
             return res['Items']
 
         return None
