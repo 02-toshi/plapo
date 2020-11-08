@@ -58,7 +58,7 @@
    - plapo
     - カラムとその説明
      - id(PK) : str
-      - room_id + "_" + member_id の合計17桁のイメージ
+      - ランダム文字列32桁くらい？
      - room_id : str
       - 6桁くらいの数値をイメージ
      - member_id : str

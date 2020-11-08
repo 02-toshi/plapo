@@ -18,15 +18,17 @@ class PlapoRepository:
             "room_id": room_id
         })
 
-    def create_new_room(self, room_id: str):
+    def create_new_room(self, record_id: str, room_id: str):
         """
         新しい部屋を作成する
-        :param room_id: 部屋番号
+        :param record_id: id
+        :param room_id: 部屋id
         :return: none
         """
         self.table.put_item(Item={
+            "id": record_id,
             "room_id": room_id,
-            "opened": False,
+            "opened": True,
             # TODO: ttlの値をいい感じにする
             "ttl": 0
         })
@@ -38,6 +40,7 @@ class PlapoRepository:
         :return:
         """
         self.create_new_room(room_id)
+        pass
 
     def create_new_member(self, member_id: str, room_id: str, nickname: str):
         """
@@ -55,17 +58,26 @@ class PlapoRepository:
             # TODO: ttlの値をいい感じにする
             "ttl": 0
         })
+        pass
 
-        return
-
-    def vote(self, member_id: str, point: int):
+    def vote(self, record_id: str, point: int):
         """
         自分の見積もり結果を保存する
-        :param member_id: 参加者のID
+        :param record_id: id
         :param point: 見積もりポイント
         :return:
         """
-        # TODO:あとでかく！
+        self.table.update_item(
+            Key={
+                'id': record_id
+            },
+            UpdateExpression="""
+                SET point = :point
+            """,
+            ExpressionAttributeValues={
+                ':point': point
+            }
+        )
         pass
 
     def cancel_vote(self, member_id: str):

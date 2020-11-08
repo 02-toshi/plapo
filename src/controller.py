@@ -1,10 +1,10 @@
-from plapo.src import utils
-from plapo.src.model import Session
-from plapo.src.repository import PlapoRepository
+from src import utils
+from src.repository import PlapoRepository
 
 room_repo = PlapoRepository()
 ROOM_ID_LENGTH = 6
 SESSION_ID_LENGTH = 10
+RECORD_ID_LENGTH = 32
 
 
 # アクティブな部屋のリストを取得する(MVPではないのでいったん考慮しない)
@@ -15,10 +15,10 @@ SESSION_ID_LENGTH = 10
 
 # 新たに部屋を建てる
 def create_new_room():
+    record_id = utils.get_random_string(RECORD_ID_LENGTH)
     room_id = utils.get_random_string(ROOM_ID_LENGTH)
-    room_repo.create_new_room(room_id)
+    room_repo.create_new_room(record_id, room_id)
     # TODO: 新しい部屋を建てるのに失敗した場合のエラーハンドリングを追記する
-
     return room_id
 
 
@@ -26,8 +26,6 @@ def create_new_room():
 def enter_room():
     # 参加者のセッション情報をdynamoDBに書き込みに行く
     def write_session_info(name: str, dynamodb=None):
-        user_session: Session = utils.get_random_string(SESSION_ID_LENGTH)
-
         return
 
 
