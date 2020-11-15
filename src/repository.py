@@ -31,6 +31,7 @@ class RoomRepository:
         self.table.put_item(
             Item={
                 "room_id": room.room_id,
+                "members": room.members,
                 "ttl": 0,
             },
         )
@@ -41,13 +42,16 @@ class RoomRepository:
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
         """
+        print(member)
+        print(room.members)
+        room.members.append(member)
+        print(room.members)
+
         self.table.put_item(
             Item={
                 "room_id": room.room_id,
-                "member_id": member.member_id,
-                "nickname": member.nickname,
-                "point": member.point,
-                "ttl": 0,
+                "members": room.members
+                # "ttl": 0,
             },
         )
         return room
