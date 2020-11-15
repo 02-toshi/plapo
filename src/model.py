@@ -1,28 +1,17 @@
 """モデル定義"""
-from dataclasses import dataclass
-
-
-@dataclass
-class Room:
-    room_id: str
-    opened: bool
-    ttl: int
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 
 @dataclass
 class Member:
     member_id: str
-    room_id: str
-    point: int
     nickname: str
-    ttl: int
+    point: Optional[int] = None
 
 
 @dataclass
-class Plapo:
-    record_id: str
+class Room:
     room_id: str
-    opened: bool
-    member_id: str
-    nickname: str
-    point: int
+    opened: bool = False
+    members: List[Member] = field(default_factory=list)

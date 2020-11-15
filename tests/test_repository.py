@@ -1,34 +1,24 @@
 """リポジトリのテスト"""
-import unittest
 
-import boto3
+import pytest
 
-from src.repository import PlapoRepository
-
-table_name = "plapo"
-dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
+from src.model import Room
+from src.repository import RoomRepository
 
 
-class TestPlapoRepository(unittest.TestCase):
-    def test_query_room(self):
-        # クエリするためのroomをまずdynamoに登録する
-        dynamodb.table = dynamodb.Table(table_name)
-        record_id = "12345678901234567890123456789012"
-        room_id = "123456"
+class TestRoomRepository:
+    @pytest.fixture
+    def sut(self, dynamodb):
+        return RoomRepository()
 
-        dynamodb.table.put_item(Item={
-            "record_id": record_id,
-            "room_id": room_id,
-            "opened": True,
-            # TODO: ttlの値をいい感じにする
-            "ttl": 0
-        })
+    def test_query_room(self, sut):
+        actual = sut.query_room("123456")
+        print(actual)
 
-        # 登録したroomをクエリする
-        # ↓こいつ書かないと詰む!!!!!!!!!!
-        plapo = PlapoRepository()
-        room_id: str = "123456"
-        room = PlapoRepository.query_room(plapo, room_id)
-        # assert room.
+    def test_initialize_room_部屋を建てる(self, sut, table):
+        room = Room(room_id="abcdef")
+        sut.initialize_room(room)
+        actual = table.get_item(Key={"room_id": "abcdef"}).get("Item")
 
-    # def test_(self):
+        assert actual is not None
+        print(actual)

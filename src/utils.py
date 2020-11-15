@@ -6,7 +6,7 @@ from numpy.core import number
 
 def get_random_string(length: int):
     randlist = [random.choice(string.digits) for i in range(length)]
-    return ''.join(randlist)
+    return "".join(randlist)
 
 
 def get_ttl_value(days: int) -> number:

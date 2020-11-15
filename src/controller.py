@@ -1,7 +1,7 @@
 from src import utils
-from src.repository import PlapoRepository
+from src.repository import RoomRepository
 
-room_repo = PlapoRepository()
+room_repo = RoomRepository()
 ROOM_ID_LENGTH = 6
 SESSION_ID_LENGTH = 10
 RECORD_ID_LENGTH = 32
@@ -17,7 +17,7 @@ RECORD_ID_LENGTH = 32
 def create_new_room():
     record_id = utils.get_random_string(RECORD_ID_LENGTH)
     room_id = utils.get_random_string(ROOM_ID_LENGTH)
-    room_repo.create_new_room(record_id, room_id)
+    room_repo.upsert_room(record_id, room_id)
     # TODO: 新しい部屋を建てるのに失敗した場合のエラーハンドリングを追記する
     return room_id
 

@@ -1,62 +1,43 @@
 from typing import Optional
 
 import boto3
-from boto3.dynamodb.conditions import Key
 
-from src.model import Plapo
+from src.model import Member, Room
 
-dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
 table_name = "plapo"
 
 
-class PlapoRepository:
+class RoomRepository:
     def __init__(self):
+        dynamodb = boto3.resource("dynamodb")
         self.table = dynamodb.Table(table_name)
 
-    def query_room(self, room_id: str) -> Optional[Plapo]:
+    def query_room(self, room_id: str) -> Optional[Room]:
         """
-        部屋の情報を取得する
+        指定したidの部屋が存在すれば返す
         :param room_id:
         :return: 指定したidの部屋が存在すれば返す
         """
-        res = self.table.query(
-            IndexName="room_id-member_id-index",
-            KeyConditionExpression=Key('room_id').eq(room_id)
-        )
-        print(room_id)
-        print(res)
+        res = self.table.get_item(Key={"room_id": room_id}).get("Item")
 
-        if len(res['Items']) > 0:
-            print("取得結果" + res['Items'])
-            return res['Items']
+        return res
 
-        return None
-
-    def create_new_room(self, record_id: str, room_id: str):
-        """
-        新しい部屋を作成する
-        :param record_id: record_id
-        :param room_id: 部屋id
-        :return: none
-        """
-        self.table.put_item(Item={
-            "record_id": record_id,
-            "room_id": room_id,
-            "opened": True,
-            # TODO: ttlの値をいい感じにする
-            "ttl": 0
-        })
-
-    def initialize_room(self, room_id: str):
+    def initialize_room(self, room: Room) -> Room:
         """
         部屋の情報を初期化する。次のバックログの見積もりを始める際に実施する。
-        :param room_id: 部屋番号
+        :param room: 部屋
         :return:
         """
-        self.create_new_room(room_id)
-        pass
+        self.table.put_item(
+            Item={
+                "room_id": room.room_id,
+                # TODO: ttlの値をいい感じにする
+                "ttl": 0,
+            },
+        )
+        return room
 
-    def create_new_member(self, member_id: str, room_id: str, nickname: str):
+    def vote(self, member: Member, room: Room) -> Room:
         """
         参加者を新規作成する
         :return: セッションインスタンス
@@ -64,41 +45,15 @@ class PlapoRepository:
         if len(nickname) == 0:
             nickname = "匿名"
 
-        self.table.put_item(Item={
-            "member_id": member_id,
-            "room_id": room_id,
-            "nickname": nickname,
-            "point": 0,
-            # TODO: ttlの値をいい感じにする
-            "ttl": 0
-        })
-        pass
-
-    def vote(self, record_id: str, point: int):
-        """
-        自分の見積もり結果を保存する
-        :param record_id: id
-        :param point: 見積もりポイント
-        :return:
-        """
-        self.table.update_item(
-            Key={
-                'id': record_id
-            },
-            UpdateExpression="""
-                SET point = :point
-            """,
-            ExpressionAttributeValues={
-                ':point': point
+        self.table.put_item(
+            Item={
+                "member_id": member_id,
+                "room_id": room_id,
+                "nickname": nickname,
+                "point": 0,
+                # TODO: ttlの値をいい感じにする
+                "ttl": 0,
             }
         )
-        pass
 
-    def cancel_vote(self, member_id: str):
-        """
-        一度保存した見積もり結果を取り消す
-        :param member_id: 参加者のID
-        :return: none
-        """
-        # TODO:あとでかく！
         pass
