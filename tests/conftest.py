@@ -11,8 +11,13 @@ def dynamodb():
         dynamodb.create_table(
             TableName="plapo",
             KeySchema=[{"AttributeName": "room_id", "KeyType": "HASH"}],
-            AttributeDefinitions=[{"AttributeName": "room_id", "AttributeType": "S"}],
-            ProvisionedThroughput={"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
+            AttributeDefinitions=[
+                {"AttributeName": "room_id", "AttributeType": "S"}
+            ],
+            ProvisionedThroughput={
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1,
+            },
         )
         table = dynamodb.Table("plapo")
         table.put_item(Item={"room_id": "123456"})

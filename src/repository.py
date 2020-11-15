@@ -37,7 +37,7 @@ class RoomRepository:
         )
         return room
 
-    def upsert_room(self, member: Member, room: Room) -> Room:
+    def act_member(self, member: Member, room: Room) -> Room:
         """
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
