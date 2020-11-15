@@ -31,29 +31,23 @@ class RoomRepository:
         self.table.put_item(
             Item={
                 "room_id": room.room_id,
-                # TODO: ttlの値をいい感じにする
                 "ttl": 0,
             },
         )
         return room
 
-    def vote(self, member: Member, room: Room) -> Room:
+    def upsert_room(self, member: Member, room: Room) -> Room:
         """
-        参加者を新規作成する
+        部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
         """
-        if len(nickname) == 0:
-            nickname = "匿名"
-
         self.table.put_item(
             Item={
-                "member_id": member_id,
-                "room_id": room_id,
-                "nickname": nickname,
-                "point": 0,
-                # TODO: ttlの値をいい感じにする
+                "room_id": room.room_id,
+                "member_id": member.member_id,
+                "nickname": member.nickname,
+                "point": member.point,
                 "ttl": 0,
-            }
+            },
         )
-
-        pass
+        return room

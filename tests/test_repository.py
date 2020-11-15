@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.model import Room
+from src.model import Room, Member
 from src.repository import RoomRepository
 
 
@@ -19,6 +19,32 @@ class TestRoomRepository:
         room = Room(room_id="abcdef")
         sut.initialize_room(room)
         actual = table.get_item(Key={"room_id": "abcdef"}).get("Item")
+        print(table.scan())
 
         assert actual is not None
-        print(actual)
+        print("actual=" + str(actual))
+
+    def test_upsert_room_部屋に参加する(self, sut, table):
+        room = Room(room_id="abcdef")
+        member = Member(
+            member_id="test_member",
+            nickname="test_name",
+        )
+        sut.initialize_room(room)
+        sut.upsert_room(member, room)
+        actual = table.get_item(Key={"room_id": "abcdef"}).get("Item")
+        print("actual" + str(actual))
+        assert actual is not None
+
+    def test_upsert_room_見積もりポイントを登録する(self, sut, table):
+        room = Room(room_id="abcdef")
+        member = Member(
+            member_id="test_member",
+            nickname="test_name",
+            point=5
+        )
+        sut.initialize_room(room)
+        sut.upsert_room(member, room)
+        actual = table.get_item(Key={"room_id": "abcdef"}).get("Item")
+        print("actual" + str(actual))
+        assert actual is not None
