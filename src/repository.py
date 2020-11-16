@@ -1,10 +1,20 @@
-from typing import Optional
+from typing import Optional, List
 
 import boto3
 
 from src.model import Member, Room
 
 table_name = "plapo"
+
+
+def filter_member_key(dict_keys: List) -> List:
+    """
+    リストの中からmemで始まるキーのリストを返す
+    :param dict_keys: 抽出対象のリスト
+    :return: memで始まるキーのリスト
+    """
+    memlist = [key for key in dict_keys if 'mem_' in key]
+    return memlist
 
 
 class RoomRepository:
@@ -19,8 +29,19 @@ class RoomRepository:
         :return: 指定したidの部屋が存在すれば返す
         """
         res = self.table.get_item(Key={"room_id": room_id}).get("Item")
+        member_keys = filter_member_key(res.keys())
+        members = []
+        for member_key in member_keys:
+            member = Member(
+                member_id=member_key[4:],
+                nickname=res.get(member_key).get("nickname"),
+            )
+            if res.get(member_key).get("point") is not None:
+                member.point = res.get(member_key).get("point")
+            members.append(member)
+        room = Room(room_id=res.get("room_id"), opened=res.get("opened"), members=members)
 
-        return res
+        return room
 
     def initialize_room(self, room: Room) -> Room:
         """
@@ -42,10 +63,7 @@ class RoomRepository:
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
         """
-        print(member)
-        print(room.members)
         room.members.append(member)
-        print(room.members)
 
         self.table.put_item(
             Item={

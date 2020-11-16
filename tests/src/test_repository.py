@@ -28,16 +28,13 @@ class TestRoomRepository:
             "mem_1000000003": {"nickname": "ななし３"},
             "opened": False,
         })
-
         actual = sut.query_room("abcdef")
-
         assert actual.room_id == "abcdef"
         assert actual.opened is False
-        assert set(actual.members) == {
-            Member(member_id="1000000001", nickname="ななし１", point=5),
-            Member(member_id="1000000002", nickname="ななし２", point=5),
-            Member(member_id="1000000003", nickname="ななし３"),
-        }
+        assert len(actual.members) == 3
+        assert Member(member_id="1000000001", nickname="ななし１", point=5) in actual.members
+        assert Member(member_id="1000000002", nickname="ななし２", point=1) in actual.members
+        assert Member(member_id="1000000003", nickname="ななし３") in actual.members
 
     def test_initialize_room_部屋を建てる(self, sut, getter):
         room = Room(room_id="abcdef")
