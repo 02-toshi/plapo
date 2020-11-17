@@ -1,20 +1,10 @@
-from typing import Optional, List
+from typing import Optional
 
 import boto3
 
 from src.model import Member, Room
 
 table_name = "plapo"
-
-
-def filter_member_key(dict_keys: List) -> List:
-    """
-    リストの中からmemで始まるキーのリストを返す
-    :param dict_keys: 抽出対象のリスト
-    :return: memで始まるキーのリスト
-    """
-    memlist = [key for key in dict_keys if 'mem_' in key]
-    return memlist
 
 
 class RoomRepository:
@@ -29,19 +19,19 @@ class RoomRepository:
         :return: 指定したidの部屋が存在すれば返す
         """
         res = self.table.get_item(Key={"room_id": room_id}).get("Item")
-        member_keys = filter_member_key(res.keys())
+        if not res:
+            return None
         members = []
-        for member_key in member_keys:
-            member = Member(
-                member_id=member_key[4:],
-                nickname=res.get(member_key).get("nickname"),
-            )
-            if res.get(member_key).get("point") is not None:
-                member.point = res.get(member_key).get("point")
-            members.append(member)
-        room = Room(room_id=res.get("room_id"), opened=res.get("opened"), members=members)
-
-        return room
+        for key, value in res.items():
+            if key.startswith('mem_'):
+                member = Member(
+                    member_id=key[4:],
+                    nickname=value["nickname"],
+                    point=value.get("point")
+                )
+                members.append(member)
+        # TODO 内包表記になおす！
+        return Room(room_id=res["room_id"], opened=res["opened"], members=members)
 
     def initialize_room(self, room: Room) -> Room:
         """
@@ -49,9 +39,16 @@ class RoomRepository:
         :param room: 部屋
         :return:
         """
+        # item = {"room_id": room.room_id}
+        # if room.members is not None:
+        #     item["members"] = room.members
+        # if room.opened:
+        #     item["members"] = room.members
+        #
         self.table.put_item(
             Item={
                 "room_id": room.room_id,
+                "opened": room.opened,
                 "members": room.members,
                 "ttl": 0,
             },

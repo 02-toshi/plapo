@@ -7,7 +7,7 @@ from typing import List, Optional
 class Member:
     member_id: str
     nickname: str
-    point: Optional[int] = 0
+    point: Optional[int] = None
 
 
 @dataclass
