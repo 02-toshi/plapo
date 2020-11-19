@@ -21,17 +21,31 @@ class RoomRepository:
         res = self.table.get_item(Key={"room_id": room_id}).get("Item")
         if not res:
             return None
-        members = []
-        for key, value in res.items():
-            if key.startswith('mem_'):
-                member = Member(
-                    member_id=key[4:],
-                    nickname=value["nickname"],
-                    point=value.get("point")
-                )
-                members.append(member)
-        # TODO 内包表記になおす！
-        return Room(room_id=res["room_id"], opened=res["opened"], members=members)
+        # 内包表記ver.
+        members = [
+            Member(
+                member_id=key[4:],
+                nickname=value["nickname"],
+                point=value.get("point"),
+            )
+            for key, value in res.items()
+            if key.startswith("mem_")
+        ]
+
+        # 通常表記ver.
+        # members = []
+        # for key, value in res.items():
+        #     if key.startswith('mem_'):
+        #         member = Member(
+        #             member_id=key[4:],
+        #             nickname=value["nickname"],
+        #             point=value.get("point")
+        #         )
+        #         members.append(member)
+
+        return Room(
+            room_id=res["room_id"], opened=res["opened"], members=members
+        )
 
     def initialize_room(self, room: Room) -> Room:
         """
