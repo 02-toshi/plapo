@@ -47,27 +47,40 @@ class RoomRepository:
             room_id=res["room_id"], opened=res["opened"], members=members
         )
 
-    def initialize_room(self, room: Room) -> Room:
+    def initialize_room(self, room: Room) -> Optional[Room]:
         """
         部屋の情報を初期化する。次のバックログの見積もりを始める際に実施する。
         :param room: 部屋
         :return:
         """
-        # item = {"room_id": room.room_id}
-        # if room.members is not None:
-        #     item["members"] = room.members
-        # if room.opened:
-        #     item["members"] = room.members
-        #
-        self.table.put_item(
+        initialized_members = [
+            Member(
+                member_id=key[4:],
+                nickname=value["nickname"],
+                point=None,
+            )
+            for key, value in room.members
+            if key.startswith("mem_")
+        ]
+        # TODO : UTが通らない原因の調査から！
+        # opened: Falseが本当に正しいっけ？部屋を立てたらその部屋は開いていて欲しい気がする
+        res = self.table.put_item(
             Item={
                 "room_id": room.room_id,
-                "opened": room.opened,
-                "members": room.members,
+                "members": initialized_members,
+                "opened": False,
                 "ttl": 0,
             },
         )
-        return room
+        if not res:
+            return None
+
+        initialized_room = Room(room_id=room.room_id, opened=False)
+
+        if len(initialized_members) > 0:
+            initialized_room.members = initialized_members
+
+        return initialized_room
 
     def act_member(self, member: Member, room: Room) -> Room:
         """
