@@ -56,7 +56,7 @@ class TestRoomRepository:
 
         actual = getter("abcdef")
         del actual["ttl"]  # TODO 検証する
-        assert actual == {"room_id": "abcdef", "opened": False, "members": []}
+        assert actual == {"room_id": "abcdef", "opened": False}
 
     def test_initialize_room_部屋を初期化する(self, sut, getter, putter):
         putter(
@@ -73,14 +73,13 @@ class TestRoomRepository:
         sut.initialize_room(room)
 
         actual = getter("abcdef")
+        print("actualをprint")
+        print(actual)
         del actual["ttl"]  # TODO 検証する
-        assert actual == {
-            "room_id": "abcdef",
-            "mem_1000000001": {"nickname": "ななし１"},
-            "mem_1000000002": {"nickname": "ななし２"},
-            "mem_1000000003": {"nickname": "ななし３"},
-            "opened": False,
-        }
+        assert actual["opened"] is False
+        assert actual["mem_1000000001"] == {"nickname": "ななし１"}
+        assert actual["mem_1000000002"] == {"nickname": "ななし２"}
+        assert actual["mem_1000000003"] == {"nickname": "ななし３"}
 
     def test_act_member_部屋に参加する(self, sut, getter, putter):
         putter(
