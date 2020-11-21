@@ -60,10 +60,16 @@ class RoomRepository:
         if latest_room:
             if len(latest_room.members) > 0:
                 print("room.membersがTrueと判定された")
-                new_members = [Member(member_id=member.member_id, nickname=member.nickname) for member in
-                               latest_room.members]
+                new_members = [
+                    Member(
+                        member_id=member.member_id, nickname=member.nickname
+                    )
+                    for member in latest_room.members
+                ]
                 new_dict_room = {
-                    "mem_" + new_member.member_id: {"nickname": new_member.nickname} for new_member in new_members
+                    "mem_"
+                    + new_member.member_id: {"nickname": new_member.nickname}
+                    for new_member in new_members
                 }
                 print("new_dict_room")
                 print(new_dict_room)
@@ -75,9 +81,13 @@ class RoomRepository:
         new_dict_room["opened"] = False
         new_dict_room["ttl"] = 0
 
-        put_result = self.table.put_item(Item=new_dict_room, )
+        put_result = self.table.put_item(
+            Item=new_dict_room,
+        )
 
-        new_room = Room(room_id=new_dict_room["room_id"], opened=False, members=new_members)
+        new_room = Room(
+            room_id=new_dict_room["room_id"], opened=False, members=new_members
+        )
         print("return直前のnew_room")
         print(new_room)
 
