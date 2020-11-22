@@ -118,11 +118,8 @@ class RoomRepository:
         new_dict_room["opened"] = False
         new_dict_room["ttl"] = 0
 
-        # if member.point:
-        #     new_dict_room["mem_" + member.member_id["point": member.point]]
-
-        print("new_dict_room")
-        print(new_dict_room)
+        if member.point:
+            new_dict_room["mem_" + member.member_id]["point"] = member.point
 
         self.table.put_item(
             Item=new_dict_room,
