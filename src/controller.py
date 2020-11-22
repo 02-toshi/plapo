@@ -1,10 +1,12 @@
-from src import utils
-from src.repository import RoomRepository
+from datetime import datetime
+from typing import Optional
 
-room_repo = RoomRepository()
+from src import repository
+from src import utils
+from src.model import Room
+
 ROOM_ID_LENGTH = 6
-SESSION_ID_LENGTH = 10
-RECORD_ID_LENGTH = 32
+repo = repository.RoomRepository
 
 
 # アクティブな部屋のリストを取得する(MVPではないのでいったん考慮しない)
@@ -14,23 +16,17 @@ RECORD_ID_LENGTH = 32
 
 
 # 新たに部屋を建てる
-def create_new_room():
-    record_id = utils.get_random_string(RECORD_ID_LENGTH)
+def create_new_room() -> Optional[Room]:
+    now = datetime.now()
     room_id = utils.get_random_string(ROOM_ID_LENGTH)
-    room_repo.upsert_room(record_id, room_id)
+    room = repo.query_room(room_id)
+    room = repo.initialize_room(room, now)
     # TODO: 新しい部屋を建てるのに失敗した場合のエラーハンドリングを追記する
-    return room_id
-
-
-def query_room(room_id: str):
-    # 参加者のセッション情報をdynamoDBに書き込みに行く
-    room_repo.query_room(room_id)
-    return
+    return room
 
 
 # 参加者が部屋に入室する
-def enter_room():
-    # 参加者のセッション情報をdynamoDBに書き込みに行く
+def enter_room(room_id: str) -> Optional[Room]:
     return
 
 
