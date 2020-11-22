@@ -1,7 +1,6 @@
 import random
 import string
-
-from numpy.core import number
+from datetime import datetime, timedelta
 
 
 def get_random_string(length: int):
@@ -9,12 +8,13 @@ def get_random_string(length: int):
     return "".join(randlist)
 
 
-def get_ttl_value(days: int) -> number:
+def get_ttl_value(now: datetime, days: int) -> int:
     """
-    日数を指定するとunixtimeに変換してttl値を返す
-
+    与えられた現在日時に指定された日数を加え、unixtimeに変換して返す
     :param days:
+    :param now:
     :return: ttl値(unixtime)
     """
-    # TODO: 実装書く
-    return
+    td_days = timedelta(days=days)
+    ttl = now + td_days
+    return int(ttl.strftime("%s"))
