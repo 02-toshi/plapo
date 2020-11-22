@@ -73,8 +73,7 @@ class TestRoomRepository:
         sut.initialize_room(room)
 
         actual = getter("abcdef")
-        print("actualをprint")
-        print(actual)
+
         del actual["ttl"]  # TODO 検証する
         assert actual["opened"] is False
         assert actual["mem_1000000001"] == {"nickname": "ななし１"}
@@ -116,6 +115,8 @@ class TestRoomRepository:
 
         actual = getter("abcdef")
         del actual["ttl"]  # TODO 検証する
+        print("actual")
+        print(actual)
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name1"},

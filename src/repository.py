@@ -59,7 +59,6 @@ class RoomRepository:
         latest_room = self.query_room(room.room_id)
         if latest_room:
             if len(latest_room.members) > 0:
-                print("room.membersがTrueと判定された")
                 new_members = [
                     Member(
                         member_id=member.member_id, nickname=member.nickname
@@ -71,10 +70,6 @@ class RoomRepository:
                     + new_member.member_id: {"nickname": new_member.nickname}
                     for new_member in new_members
                 }
-                print("new_dict_room")
-                print(new_dict_room)
-            else:
-                new_members = []
 
         # opened: Falseが本当に正しいっけ？部屋を立てたらその部屋は開いていて欲しい気がする
         new_dict_room["room_id"] = room.room_id
@@ -88,8 +83,6 @@ class RoomRepository:
         new_room = Room(
             room_id=new_dict_room["room_id"], opened=False, members=new_members
         )
-        print("return直前のnew_room")
-        print(new_room)
 
         return new_room
 
@@ -98,13 +91,40 @@ class RoomRepository:
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
         """
-        room.members.append(member)
+        latest_room = self.query_room(room.room_id)
+        new_dict_room = {}
+
+        if latest_room:
+            if len(latest_room.members) > 0:
+                present_members = [
+                    Member(
+                        member_id=member.member_id, nickname=member.nickname
+                    )
+                    for member in latest_room.members
+                ]
+                for present_member in present_members:
+                    new_dict_room["mem_" + present_member.member_id] = {
+                        "nickname": present_member.nickname
+                    }
+                    if present_member.point:
+                        new_dict_room["mem_" + present_member.member_id] = {
+                            "point": present_member.point
+                        }
+
+        new_dict_room["room_id"] = room.room_id
+        new_dict_room["mem_" + member.member_id] = {
+            "nickname": member.nickname
+        }
+        new_dict_room["opened"] = False
+        new_dict_room["ttl"] = 0
+
+        # if member.point:
+        #     new_dict_room["mem_" + member.member_id["point": member.point]]
+
+        print("new_dict_room")
+        print(new_dict_room)
 
         self.table.put_item(
-            Item={
-                "room_id": room.room_id,
-                "members": room.members
-                # "ttl": 0,
-            },
+            Item=new_dict_room,
         )
         return room
