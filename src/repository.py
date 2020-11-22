@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import Optional
 
 import boto3
 
+from src import utils
 from src.model import Member, Room
 
 table_name = "plapo"
@@ -47,9 +49,10 @@ class RoomRepository:
             room_id=res["room_id"], opened=res["opened"], members=members
         )
 
-    def initialize_room(self, room: Room) -> Optional[Room]:
+    def initialize_room(self, room: Room, now: datetime) -> Optional[Room]:
         """
         部屋の情報を初期化する。次のバックログの見積もりを始める際に実施する。
+        :param now:
         :param room: 部屋
         :return:
         """
@@ -74,7 +77,7 @@ class RoomRepository:
         # opened: Falseが本当に正しいっけ？部屋を立てたらその部屋は開いていて欲しい気がする
         new_dict_room["room_id"] = room.room_id
         new_dict_room["opened"] = False
-        new_dict_room["ttl"] = 0
+        new_dict_room["ttl"] = utils.get_ttl_value(now, 1)
 
         put_result = self.table.put_item(
             Item=new_dict_room,
@@ -86,7 +89,7 @@ class RoomRepository:
 
         return new_room
 
-    def act_member(self, member: Member, room: Room) -> Room:
+    def act_member(self, member: Member, room: Room, now: datetime) -> Room:
         """
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
@@ -116,7 +119,7 @@ class RoomRepository:
             "nickname": member.nickname
         }
         new_dict_room["opened"] = False
-        new_dict_room["ttl"] = 0
+        new_dict_room["ttl"] = utils.get_ttl_value(now, 1)
 
         if member.point:
             new_dict_room["mem_" + member.member_id]["point"] = member.point

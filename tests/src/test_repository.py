@@ -1,4 +1,5 @@
 """リポジトリのテスト"""
+from datetime import datetime
 
 import pytest
 
@@ -52,11 +53,16 @@ class TestRoomRepository:
     def test_initialize_room_部屋を建てる(self, sut, getter):
         room = Room(room_id="abcdef")
 
-        sut.initialize_room(room)
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
+        sut.initialize_room(room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
-        assert actual == {"room_id": "abcdef", "opened": False}
+        assert actual == {
+            "room_id": "abcdef",
+            "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
+        }
 
     def test_initialize_room_部屋を初期化する(self, sut, getter, putter):
         putter(
@@ -69,16 +75,18 @@ class TestRoomRepository:
             }
         )
         room = Room(room_id="abcdef")
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.initialize_room(room)
+        sut.initialize_room(room, now)
 
         actual = getter("abcdef")
 
-        del actual["ttl"]  # TODO 検証する
         assert actual["opened"] is False
         assert actual["mem_1000000001"] == {"nickname": "ななし１"}
         assert actual["mem_1000000002"] == {"nickname": "ななし２"}
         assert actual["mem_1000000003"] == {"nickname": "ななし３"}
+        assert actual["ttl"] == int(tomorrow.strftime("%s"))
 
     def test_act_member_部屋に参加する(self, sut, getter, putter):
         putter(
@@ -89,15 +97,17 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000001", nickname="test_name1")
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room)
+        sut.act_member(member, room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name1"},
             "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
         }
 
     def test_act_member_部屋に参加する_2人目(self, sut, getter, putter):
@@ -110,18 +120,18 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000002", nickname="test_name2")
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room)
+        sut.act_member(member, room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
-        print("actual")
-        print(actual)
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name1"},
             "mem_2000000002": {"nickname": "test_name2"},
             "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
         }
 
     def test_act_member_ニックネーム変更(self, sut, getter, putter):
@@ -134,15 +144,17 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000001", nickname="test_name2")
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room)
+        sut.act_member(member, room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name2"},
             "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
         }
 
     def test_act_member_投票(self, sut, getter, putter):
@@ -155,15 +167,17 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000001", nickname="test_name1", point=5)
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room)
+        sut.act_member(member, room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name1", "point": 5},
             "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
         }
 
     def test_act_member_投票_変更(self, sut, getter, putter):
@@ -176,13 +190,15 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000001", nickname="test_name1", point=8)
+        now = datetime(2020, 11, 22, 0, 0, 0)
+        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room)
+        sut.act_member(member, room, now)
 
         actual = getter("abcdef")
-        del actual["ttl"]  # TODO 検証する
         assert actual == {
             "room_id": "abcdef",
             "mem_2000000001": {"nickname": "test_name1", "point": 8},
             "opened": False,
+            "ttl": int(tomorrow.strftime("%s")),
         }
