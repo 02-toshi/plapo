@@ -79,6 +79,10 @@ class RoomRepository:
         new_dict_room["opened"] = False
         new_dict_room["ttl"] = utils.get_ttl_value(now, 1)
 
+        put_result = self.table.put_item(
+            Item=new_dict_room,
+        )
+
         new_room = Room(
             room_id=new_dict_room["room_id"], opened=False, members=new_members
         )
@@ -121,6 +125,10 @@ class RoomRepository:
             new_dict_room["mem_" + member.member_id]["point"] = member.point
 
         # ここは条件付き書き込みにする
+        # self.table.update_item(
+        #     Key="mem_"+member.member_id,
+        #     AttributeUpdates={"nickname": member.nickname, "point": member.point},
+        # )
         self.table.put_item(
             Item=new_dict_room,
         )

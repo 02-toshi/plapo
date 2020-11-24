@@ -15,6 +15,5 @@ def get_ttl_value(now: datetime, days: int) -> int:
     :param now:
     :return: ttl値(unixtime)
     """
-    td_days = timedelta(days=days)
-    ttl = now + td_days
+    ttl = now + timedelta(days=days)
     return int(ttl.strftime("%s"))
