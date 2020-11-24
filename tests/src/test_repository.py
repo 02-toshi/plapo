@@ -2,6 +2,7 @@
 from datetime import datetime
 
 import pytest
+from arrow import Arrow
 
 from src.model import Member, Room
 from src.repository import RoomRepository
@@ -52,16 +53,15 @@ class TestRoomRepository:
 
     def test_initialize_room_部屋を建てる(self, sut, getter):
         room = Room(room_id="abcdef")
-
-        now = datetime(2020, 11, 22, 0, 0, 0)
-        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
+        now = Arrow(2020, 11, 22)
+        
         sut.initialize_room(room, now)
 
         actual = getter("abcdef")
         assert actual == {
             "room_id": "abcdef",
             "opened": False,
-            "ttl": int(tomorrow.strftime("%s")),
+            "ttl": 1606089600,
         }
 
     def test_initialize_room_部屋を初期化する(self, sut, getter, putter):
@@ -74,9 +74,15 @@ class TestRoomRepository:
                 "opened": True,
             }
         )
-        room = Room(room_id="abcdef")
-        now = datetime(2020, 11, 22, 0, 0, 0)
-        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
+        room = Room(
+            room_id="abcdef",
+            members=[
+                Member("1000000001", "ななし１"),
+                Member("1000000002", "ななし２"),
+                Member("1000000003", "ななし３"),
+            ]
+        )
+        now = Arrow(2020, 11, 22)
 
         sut.initialize_room(room, now)
 
@@ -86,7 +92,7 @@ class TestRoomRepository:
         assert actual["mem_1000000001"] == {"nickname": "ななし１"}
         assert actual["mem_1000000002"] == {"nickname": "ななし２"}
         assert actual["mem_1000000003"] == {"nickname": "ななし３"}
-        assert actual["ttl"] == int(tomorrow.strftime("%s"))
+        assert actual["ttl"] == 1606089600
 
     def test_act_member_部屋に参加する(self, sut, getter, putter):
         putter(
@@ -97,18 +103,14 @@ class TestRoomRepository:
         )
         room = Room(room_id="abcdef")
         member = Member(member_id="2000000001", nickname="test_name1")
-        now = datetime(2020, 11, 22, 0, 0, 0)
-        tomorrow = datetime(2020, 11, 23, 0, 0, 0)
 
-        sut.act_member(member, room, now)
+        sut.act_member(member, room)
 
         actual = getter("abcdef")
-        assert actual == {
-            "room_id": "abcdef",
-            "mem_2000000001": {"nickname": "test_name1"},
-            "opened": False,
-            "ttl": int(tomorrow.strftime("%s")),
-        }
+        assert actual["room_id"] == "abcdef"
+        assert actual["mem_2000000001"] == {"nickname": "test_name1"}
+        assert actual["mem_2000000001"] == {"nickname": "test_name1"}
+        assert actual["opened"] is False
 
     def test_act_member_部屋に参加する_2人目(self, sut, getter, putter):
         putter(
