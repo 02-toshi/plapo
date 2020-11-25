@@ -1,10 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
 import boto3
 from arrow import Arrow
 
-from src import utils
 from src.model import Member, Room
 
 table_name = "plapo"
@@ -67,24 +65,31 @@ class RoomRepository:
         部屋に参加する / 見積もりポイントを登録する
         :return: セッションインスタンス
         """
-        item = {}
 
-        new_dict_room["room_id"] = room.room_id
-        new_dict_room["mem_" + member.member_id] = {
-            "nickname": member.nickname
+        item = {
+            ':m': {"nickname": member.nickname},
         }
-        new_dict_room["opened"] = False
-        new_dict_room["ttl"] = utils.get_ttl_value(now, 1)
+        update_expression_str = f"set mem_{member.member_id}=:m"
 
         if member.point:
-            new_dict_room["mem_" + member.member_id]["point"] = member.point
+            item = {
+                ':m': {"nickname": member.nickname, "point": member.point},
+            }
 
-        # ここは条件付き書き込みにする
-        # self.table.update_item(
-        #     Key="mem_"+member.member_id,
-        #     AttributeUpdates={"nickname": member.nickname, "point": member.point},
-        # )
-        self.table.put_item(
-            Item=new_dict_room,
+        print("item")
+        print(item)
+        print("update_expression_str")
+        print(update_expression_str)
+
+        self.table.update_item(
+            Key={'room_id': room.room_id},
+            UpdateExpression=update_expression_str,
+            ExpressionAttributeValues=item,
+            ReturnValues="UPDATED_NEW"
         )
-        return room
+
+        new_room = self.query_room(room.room_id)
+
+        if new_room:
+            return new_room
+        raise Exception
