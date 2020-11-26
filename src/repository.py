@@ -51,7 +51,7 @@ class RoomRepository:
             "ttl": now.shift(days=1).int_timestamp,
         }
         for member in room.members:
-            item[f"mem_{member.member_id}"] = {"nickname": member.nickname}
+            item[f"mem_{member.member_id}"] = {"nickname": member.nickname, "point": None}
 
         self.table.put_item(Item=item)
 
@@ -66,29 +66,21 @@ class RoomRepository:
         :return: セッションインスタンス
         """
 
-        item = {
-            ':m': {"nickname": member.nickname},
-        }
+        if member.point:
+            item = {"nickname": member.nickname, "point": member.point}
+        else:
+            item = {"nickname": member.nickname, "point": None}
+
         update_expression_str = f"set mem_{member.member_id}=:m"
 
-        if member.point:
-            item = {
-                ':m': {"nickname": member.nickname, "point": member.point},
-            }
-
-        print("item")
-        print(item)
-        print("update_expression_str")
-        print(update_expression_str)
-
-        self.table.update_item(
+        res = self.table.update_item(
             Key={'room_id': room.room_id},
             UpdateExpression=update_expression_str,
-            ExpressionAttributeValues=item,
-            ReturnValues="UPDATED_NEW"
+            ExpressionAttributeValues={":m": item},
+            ReturnValues="ALL_NEW"
         )
 
-        new_room = self.query_room(room.room_id)
+        new_room = res.get("Attributes")
 
         if new_room:
             return new_room
