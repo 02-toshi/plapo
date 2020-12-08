@@ -1,9 +1,11 @@
-from datetime import datetime
-from typing import Optional
+import json
+from typing import Optional, Dict
+
+from arrow import Arrow
 
 from src import repository
 from src import utils
-from src.model import Room
+from src.model import Room, Member
 
 ROOM_ID_LENGTH = 6
 repo = repository.RoomRepository
@@ -16,30 +18,43 @@ repo = repository.RoomRepository
 
 
 # 新たに部屋を建てる
-def create_new_room() -> Optional[Room]:
-    now = datetime.now()
-    room_id = utils.get_random_string(ROOM_ID_LENGTH)
-    room = repo.query_room(room_id)
-    room = repo.initialize_room(room, now)
-    # TODO: 新しい部屋を建てるのに失敗した場合のエラーハンドリングを追記する
+def create_new_room(event, context) -> Dict[str, str]:
+    now = Arrow.now()
+    while True:
+        room_id = utils.get_random_string(ROOM_ID_LENGTH)
+        if not repo.query_room(room_id):
+            break
+    room = repo.initialize_room(Room(room_id), now)
+    # try:
+    #     room = repo.initialize_room(Room(room_id), now)
+    # except RuntimeError as e:
+    #     print("サーバ側のエラーです。", e)
+    #     res["errorCode"] = ""
+    # except ConnectionError as e:
+    #     print()
+    body = str(room)
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Location': '{}'.format()
+        },
+        'body': json.dumps(body),
+        'isBase64Encoded': False
+    }
+
+
+# 部屋の状態をリセットする
+def initialize_room(room_id: str):
+    room = repo.initialize_room(room_id)
     return room
 
 
-# 参加者が部屋に入室する
-def enter_room(room_id: str) -> Optional[Room]:
-    return
+# 参加者が部屋に参加するか、見積りポイントを登録する
+def act_member(member: Member, room: Room) -> Optional[Room]:
+    room = repo.act_member(member, room)
+    return room
 
 
-# 各バックログの見積もりを確定してDynamoDBに書き込みに行く
-def write_estimate_result():
-    return
-
-
-# ブラウザを閉じたらDynamoDBからセッション情報を削除する（気分）
+# ブラウザを閉じたらDynamoDBからセッション情報を削除する（気分）　→　いらない...？
 def delete_session_info():
-    return
-
-
-# 過去の見積結果のポイントをDynamoDBから削除して履歴をリセットする
-def reset_estimate_history():
     return
