@@ -1,16 +1,28 @@
 service: plapo
+
+package:
+  exclude:
+    - node_modules/**
+    - .venv/**
+    - .tox/**
+    - .idea/**
+    - .pytest_cache/**
+    - .mypy_cache/**
+    - .static_cache/**
+    - tests/**
+
 frameworkVersion: '2'
+
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: python3.8
+  region: ap-northeast-1
+  stage: ${opt:stage, 'dev'}
+  #  deploymentBucket: plapo-bucket
+  environment:
+    ENV: ${self.provider.stage}
 
 functions:
-  #  getActiveRooms:
-  #    handler: controller.get_active_rooms
-  #    events:
-  #      - http:
-  #          path: plapo
-  #          method: get
   - CreateRoom:
       handler: controller.create_new_room
       events:
@@ -18,12 +30,12 @@ functions:
             path: plapo/createRoom
             method: get
 
-
-
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
   - serverless-python-requirements
+#  - serverless-s3-deploy
+
 custom:
   dynamodb:
     stages:
@@ -32,6 +44,12 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
+#  assets:
+#    targets:
+#      - bucket: plapo-bucket
+#        files:
+#          -source: src/
+#          globs: '**/*.py'
 
 resources:
   Resources:

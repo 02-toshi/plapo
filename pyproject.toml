@@ -2,12 +2,11 @@
 name = "plapo"
 version = "0.1.0"
 description = ""
-authors = ["oa-takahashi <oa-takahashi@kddi.com>"]
+authors = ["02-toshi <takahashi.toshinari.dev00@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 boto3 = "^1.16.0"
-numpy = "^1.19.4"
 arrow = "^0.17.0"
 
 [tool.poetry.dev-dependencies]
